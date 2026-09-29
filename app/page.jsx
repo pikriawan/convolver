@@ -1,3 +1,14 @@
+import { convolve } from "./actions";
+
 export default function HomePage() {
-    return <h1>Hello world</h1>;
+    return (
+        <form action={convolve}>
+            <div>
+                <input type="file" name="file" />
+            </div>
+            <div>
+                <button>Upload</button>
+            </div>
+        </form>
+    );
 }
