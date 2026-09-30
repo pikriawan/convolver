@@ -28,7 +28,7 @@ export async function convolve(formData) {
             "-i",
             path.join(process.cwd(), "default-impulse-response.wav"),
             "-filter_complex",
-            "[0:a][1:a]afir",
+            "[0:a][1:a]afir,volume=10",
             "-c:a",
             "libmp3lame",
             "-b:a",
