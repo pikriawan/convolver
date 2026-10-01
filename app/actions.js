@@ -14,7 +14,7 @@ export async function convolve(formData) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const filePath = path.join(process.cwd(), "input.mp3");
+    const filePath = path.join(process.cwd(), "public", "input.mp3");
 
     fs.writeFileSync(filePath, buffer);
 
@@ -24,9 +24,9 @@ export async function convolve(formData) {
         "ffmpeg",
         [
             "-i",
-            path.join(process.cwd(), "input.mp3"),
+            path.join(process.cwd(), "public", "input.mp3"),
             "-i",
-            path.join(process.cwd(), "default-impulse-response.wav"),
+            path.join(process.cwd(), "input", "default-impulse-response.wav"),
             "-filter_complex",
             "[0:a][1:a]afir,volume=10",
             "-c:a",
