@@ -1,3 +1,4 @@
+import "./style.css";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import impulseResponseURL from "./impulse-response.wav";
@@ -5,6 +6,9 @@ import coreURL from "./node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js?url";
 import wasmURL from "./node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.wasm?url";
 
 let ffmpeg = null;
+
+let sourceURL = "";
+let outputURL = "";
 
 async function load() {
     if (!ffmpeg) {
@@ -15,47 +19,74 @@ async function load() {
         console.log(message);
     });
 
+    const progress = document.getElementById("progress");
+
+    ffmpeg.on("progress", ({ progress: p }) => {
+        const rounded = Math.round(p * 100);
+        progress.textContent = `Progress: ${rounded <= 100 ? rounded : "..."}%`;
+    });
+
     await ffmpeg.load({ coreURL, wasmURL });
 
-    document.getElementById("loader").remove();
+    const loader = document.getElementById("loader");
+    loader.remove();
 
-    const sourceForm = document.createElement("form");
-    sourceForm.setAttribute("id", "sourceForm");
+    const onload = document.getElementById("onload");
+    onload.classList.add("show");
 
-    sourceForm.innerHTML = `
-        <div>
-            <input type="file" name="source" accept="audio/mpeg" required>
-        </div>
-        <div>
-            <button>Convolve</button>
-        </div>
-    `;
+    const sourceForm = document.getElementById("sourceForm");
 
     sourceForm.addEventListener("submit", (event) => {
         event.preventDefault();
 
         const data = new FormData(event.target);
-        const source = data.get("source");
-        convolve(source);
+        convolve(data);
     });
 
-    document.body.append(sourceForm);
+    const impulseResponse = document.getElementById("impulseResponse");
+    const impulseResponseReset = document.getElementById("impulseResponseReset");
+
+    impulseResponseReset.addEventListener("click", () => {
+        impulseResponse.value = "";
+    });
+
+    const speedLabel = document.getElementById("speedLabel");
+    const speed = document.getElementById("speed");
+
+    speedLabel.textContent = `Speed (${speed.value / 100}x)`;
+
+    speed.addEventListener("change", (event) => {
+        speedLabel.textContent = `Speed (${event.target.value / 100}x)`;
+    });
 }
 
-async function convolve(file) {
+async function convolve(formData) {
     if (ffmpeg === null) {
         return;
     }
 
-    await ffmpeg.writeFile("impulse-response.wav", await fetchFile(impulseResponseURL));
-    await ffmpeg.writeFile(file.name, await fetchFile(file));
+    URL.revokeObjectURL(sourceURL);
+    URL.revokeObjectURL(outputURL);
+
+    const source = formData.get("source");
+    const impulseResponse = formData.get("impulse_response");
+    const speed = formData.get("speed");
+
+    if (impulseResponse.size > 0) {
+        await ffmpeg.writeFile("impulse-response.wav", await fetchFile(impulseResponse));
+    } else {
+        await ffmpeg.writeFile("impulse-response.wav", await fetchFile(impulseResponseURL));
+    }
+
+    await ffmpeg.writeFile("input.mp3", await fetchFile(source));
+
     await ffmpeg.exec([
         "-i",
-        file.name,
+        "input.mp3",
         "-i",
         "impulse-response.wav",
         "-filter_complex",
-        "[0:a][1:a]afir,volume=10",
+        `[0:a][1:a]afir,asetrate=44100*${speed / 100},aresample=44100,volume=10`,
         "-c:a",
         "libmp3lame",
         "-b:a",
@@ -65,10 +96,13 @@ async function convolve(file) {
 
     const data = await ffmpeg.readFile("output.mp3");
 
-    const output = document.createElement("audio");
-    output.setAttribute("controls", "");
-    output.src = URL.createObjectURL(new Blob([data.buffer], { type: "audio/mpeg" }));
-    document.body.append(output);
+    const sourceAudio = document.getElementById("sourceAudio");
+    sourceURL = URL.createObjectURL(source);
+    sourceAudio.src = sourceURL;
+
+    const outputAudio = document.getElementById("outputAudio");
+    outputURL = URL.createObjectURL(new Blob([data.buffer], { type: "audio/mpeg" }));
+    outputAudio.src = outputURL;
 }
 
 load();

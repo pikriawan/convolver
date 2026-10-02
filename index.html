@@ -4,9 +4,44 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Convolver</title>
+        <link rel="stylesheet" href="/style.css">
     </head>
     <body>
         <p id="loader">Memuat ffmpeg...</p>
+        <div id="onload" class="onload">
+            <form id="sourceForm" class="source-form">
+                <div>
+                    <label for="source">Source (.mp3)</label>
+                    <br>
+                    <input type="file" id="source" name="source" accept="audio/mpeg" required>
+                </div>
+                <div>
+                    <label for="impulseResponse">Impulse response (.wav, optional)</label>
+                    <br>
+                    <input type="file" id="impulseResponse" name="impulse_response" accept="audio/x-wav">
+                    <br>
+                    <button type="button" id="impulseResponseReset">Reset</button>
+                </div>
+                <div>
+                    <label for="speed" id="speedLabel">Speed (1x)</label>
+                    <br>
+                    <input type="range" id="speed" name="speed" min="50" max="200" step="5" value="100">
+                    <span></span>
+                </div>
+                <div>
+                    <button>Convolve</button>
+                </div>
+            </form>
+            <p id="progress">Progress: 0%</p>
+            <div>
+                <p>Original</p>
+                <audio id="sourceAudio" controls></audio>
+            </div>
+            <div>
+                <p>Convolved</p>
+                <audio id="outputAudio" controls></audio>
+            </div>
+        </div>
         <script type="module" src="/main.js"></script>
     </body>
 </html>

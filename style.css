@@ -1,0 +1,13 @@
+.onload {
+    display: none;
+}
+
+.onload.show {
+    display: block;
+}
+
+.source-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
