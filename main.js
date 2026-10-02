@@ -69,20 +69,6 @@ async function convolve(file) {
     output.setAttribute("controls", "");
     output.src = URL.createObjectURL(new Blob([data.buffer], { type: "audio/mpeg" }));
     document.body.append(output);
-
-    document.body.append(document.createElement("br"));
-
-    const download = document.createElement("button");
-    download.textContent = "Download";
-    document.body.append(download);
-
-    download.addEventListener("click", () => {
-        const link = document.createElement("a");
-        link.setAttribute("href", output.src);
-        link.setAttribute("download", "output.mp3");
-        link.click();
-    });
-
 }
 
 load();
