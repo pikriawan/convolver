@@ -110,11 +110,11 @@ export default function Home() {
                     <Form className="w-full max-w-sm flex flex-col gap-4" onSubmit={onSubmit}>
                         <Field>
                             <FieldLabel htmlFor={sourceId}>Source (.mp3)</FieldLabel>
-                            <Input type="file" id={sourceId} name="source" accept="audio/mpeg" required />
+                            <Input type="file" id={sourceId} name="source" accept=".mp3,audio/mpeg" required />
                         </Field>
                         <Field>
                             <FieldLabel htmlFor={impulseResponseId}>Impulse response (.wav, optional)</FieldLabel>
-                            <Input type="file" id={impulseResponseId} name="impulseResponse" accept="audio/wav" />
+                            <Input type="file" id={impulseResponseId} name="impulseResponse" accept=".wav,audio/wav,audio/x-wav" />
                         </Field>
                         <Field>
                             <input type="hidden" name="speed" value={speed} />
