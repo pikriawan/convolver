@@ -114,7 +114,7 @@ export default function Home() {
                         </Field>
                         <Field>
                             <FieldLabel htmlFor={impulseResponseId}>Impulse response (.wav, optional)</FieldLabel>
-                            <Input type="file" id={impulseResponseId} name="impulseResponse" accept=".wav,audio/wav,audio/x-wav" />
+                            <Input type="file" id={impulseResponseId} name="impulseResponse" accept=".wav,audio/wav" />
                         </Field>
                         <Field>
                             <input type="hidden" name="speed" value={speed} />
