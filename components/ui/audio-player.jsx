@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardPanel } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 
-export default function AudioPlayer({ src, loop = false }) {
+export function AudioPlayer({ src, loop = false }) {
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);

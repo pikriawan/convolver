@@ -1,5 +1,6 @@
 "use client";
 
+import { AudioPlayer } from "@/components/ui/audio-player";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Form } from "@/components/ui/form";
@@ -11,16 +12,14 @@ import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useId, useRef, useState } from "react";
 
 export default function Home() {
-    const [loaded, setLoaded] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const ffmpegRef = useRef(new FFmpeg());
-    const sourceURLRef = useRef(null);
-    const sourceRef = useRef(null);
-    const outputURLRef = useRef(null);
-    const outputRef = useRef(null);
-    const [speed, setSpeed] = useState(0.9);
     const sourceId = useId();
     const impulseResponseId = useId();
+    const [loaded, setLoaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [speed, setSpeed] = useState(0.9);
+    const [sourceURL, setSourceURL] = useState(null);
+    const [outputURL, setOutputURL] = useState(null);
 
     useEffect(() => {
         function onLog({ message }) {
@@ -86,20 +85,18 @@ export default function Home() {
 
         setIsLoading(false);
 
-        if (sourceURLRef.current !== null) {
-            URL.revokeObjectURL(sourceURLRef.current);
+        if (sourceURL) {
+            URL.revokeObjectURL(sourceURL);
         }
 
-        sourceURLRef.current = URL.createObjectURL(source);
-        sourceRef.current.src = sourceURLRef.current;
+        setSourceURL(URL.createObjectURL(source));
 
-        if (outputURLRef.current !== null) {
-            URL.revokeObjectURL(outputURLRef.current);
+        if (outputURL) {
+            URL.revokeObjectURL(outputURL);
         }
 
         const outputData = await ffmpeg.readFile("output.mp3");
-        outputURLRef.current = URL.createObjectURL(new Blob([outputData.buffer], { type: "audio/mpeg" }));
-        outputRef.current.src = outputURLRef.current;
+        setOutputURL(URL.createObjectURL(new Blob([outputData.buffer], { type: "audio/mpeg" })));
     }
 
     return (
@@ -137,11 +134,11 @@ export default function Home() {
                     <div className="w-full max-w-sm flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             <span>Original</span>
-                            <audio ref={sourceRef} loop controls />
+                            <AudioPlayer src={sourceURL} loop />
                         </div>
                         <div className="flex flex-col gap-2">
                             <span>Convolved</span>
-                            <audio ref={outputRef} loop controls />
+                            <AudioPlayer src={outputURL} loop />
                         </div>
                     </div>
                 </>
