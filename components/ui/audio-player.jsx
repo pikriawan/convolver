@@ -3,32 +3,63 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Play } from "lucide-react";
+import { Pause, Play } from "lucide-react";
 
-export default function AudioPlayer({ src }) {
+export default function AudioPlayer({ src, loop = false }) {
     const audioRef = useRef(null);
-    const [canPlay, setCanPlay] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
 
     useEffect(() => {
-        setCanPlay(false);
+        if (!src) {
+            return;
+        }
+
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.remove();
+        }
+
         setIsPlaying(false);
         setCurrentTime(0);
         setDuration(0);
-    }, [src]);
 
-    function onLoadedMetadata(event) {
-        setDuration(event.target.duration);
-    }
+        const audio = new Audio(src);
+        audioRef.current = audio;
+        audioRef.current.loop = loop;
 
-    function onTimeUpdate(event) {
-        setCurrentTime(event.target.currentTime);
-    }
+        function onLoadedMetadata() {
+            setDuration(audio.duration);
+        }
+
+        function onTimeUpdate(event) {
+            setCurrentTime(event.target.currentTime);
+        }
+
+        function onPlay() {
+            setIsPlaying(true);
+        }
+
+        function onPause() {
+            setIsPlaying(false);
+        }
+
+        audioRef.current.addEventListener("loadedmetadata", onLoadedMetadata);
+        audioRef.current.addEventListener("timeupdate", onTimeUpdate);
+        audioRef.current.addEventListener("play", onPlay);
+        audioRef.current.addEventListener("pause", onPause);
+
+        return () => {
+            audioRef.current.removeEventListener("loadedmetadata", onLoadedMetadata);
+            audioRef.current.removeEventListener("timeupdate", onTimeUpdate);
+            audioRef.current.removeEventListener("play", onPlay);
+            audioRef.current.removeEventListener("pause", onPause);
+        };
+    }, [src, loop]);
 
     async function onToggle() {
-        if (!audioRef.current || !canPlay) {
+        if (!audioRef.current) {
             return;
         }
 
@@ -55,23 +86,11 @@ export default function AudioPlayer({ src }) {
     }
 
     return (
-        <>
-            <audio
-                src={src}
-                className="hidden"
-                ref={audioRef}
-                onLoadedMetadata={onLoadedMetadata}
-                onCanPlay={() => setCanPlay(true)}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onTimeUpdate={onTimeUpdate}
-            />
-            <div className="p-4 flex gap-2 items-center bg-accent">
-                <Button className="aspect-square" variant="ghost" onClick={onToggle} disabled={!canPlay}>
-                    <Play fill="currentColor" />
-                </Button>
-                <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} disabled={!canPlay} />
-            </div>
-        </>
+        <div className="p-4 flex gap-2 items-center bg-accent ring ring-inset ring-accent rounded-full">
+            <Button className="aspect-square" variant="ghost" onClick={onToggle}>
+                {isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
+            </Button>
+            <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} />
+        </div>
     );
 }
