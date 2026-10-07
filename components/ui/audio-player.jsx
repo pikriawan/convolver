@@ -1,9 +1,10 @@
 "use client";
 
+import { Slider as SliderPrimitive} from "@base-ui/react/slider";
+import { Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Pause, Play } from "lucide-react";
 
 export default function AudioPlayer({ src, loop = false }) {
     const audioRef = useRef(null);
@@ -85,12 +86,28 @@ export default function AudioPlayer({ src, loop = false }) {
         }
     }
 
+    function formatDuration(seconds) {
+        const totalSeconds = Math.floor(seconds);
+
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = totalSeconds % 60;
+
+        if (h > 0) {
+            return `${h}:${m}:${String(s).padStart(2, "0")}`;
+        }
+
+        return `${m}:${String(s).padStart(2, "0")}`;
+    }
+
     return (
-        <div className="p-4 flex gap-2 items-center bg-accent ring ring-inset ring-accent rounded-full">
+        <div className="p-4 flex gap-2 items-center bg-background ring ring-inset ring-accent rounded-lg">
             <Button className="aspect-square" variant="ghost" onClick={onToggle}>
                 {isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
             </Button>
+            <span className="text-sm tabular-nums">{formatDuration(currentTime)}</span>
             <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} />
+            <span className="text-sm tabular-nums">{formatDuration(duration)}</span>
         </div>
     );
 }
