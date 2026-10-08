@@ -1,12 +1,12 @@
 "use client";
 
-import { Pause, Play } from "lucide-react";
+import { Download, Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardPanel } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 
-export function AudioPlayer({ src, loop = false }) {
+export function AudioPlayer({ src, loop = false, downloadable = false }) {
     const audioRef = useRef(null);
     const [canPlay, setCanPlay] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -65,10 +65,10 @@ export function AudioPlayer({ src, loop = false }) {
             audioRef.current.removeEventListener("play", onPlay);
             audioRef.current.removeEventListener("pause", onPause);
         };
-    }, [src, loop]);
+    }, [src, loop, downloadable]);
 
     async function onToggle() {
-        if (!audioRef.current) {
+        if (!audioRef.current || !canPlay) {
             return;
         }
 
@@ -82,6 +82,17 @@ export function AudioPlayer({ src, loop = false }) {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    function download() {
+        if (!audioRef.current || !canPlay) {
+            return;
+        }
+
+        const link = document.createElement("a");
+        link.setAttribute("href", audioRef.current.src);
+        link.setAttribute("download", "");
+        link.click();
     }
 
     function onValueChange(value) {
@@ -118,6 +129,11 @@ export function AudioPlayer({ src, loop = false }) {
                     <span className="text-sm tabular-nums">{formatDuration(currentTime)}</span>
                     <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} disabled={!canPlay} />
                     <span className="text-sm tabular-nums">{formatDuration(duration)}</span>
+                    {downloadable && (
+                        <Button className="aspect-square" variant="secondary" onClick={download} disabled={!canPlay}>
+                            <Download />
+                        </Button>
+                    )}
                 </div>
             </CardPanel>
         </Card>

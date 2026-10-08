@@ -134,11 +134,11 @@ export default function Home() {
                     <div className="w-full max-w-sm flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             <span>Original</span>
-                            <AudioPlayer src={sourceURL} loop />
+                            <AudioPlayer src={sourceURL} loop downloadable />
                         </div>
                         <div className="flex flex-col gap-2">
                             <span>Convolved</span>
-                            <AudioPlayer src={outputURL} loop />
+                            <AudioPlayer src={outputURL} loop downloadable />
                         </div>
                     </div>
                 </>
