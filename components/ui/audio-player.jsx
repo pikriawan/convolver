@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 
 export function AudioPlayer({ src, loop = false }) {
     const audioRef = useRef(null);
+    const [canPlay, setCanPlay] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -22,6 +23,7 @@ export function AudioPlayer({ src, loop = false }) {
             audioRef.current.remove();
         }
 
+        setCanPlay(false);
         setIsPlaying(false);
         setCurrentTime(0);
         setDuration(0);
@@ -29,6 +31,10 @@ export function AudioPlayer({ src, loop = false }) {
         const audio = new Audio(src);
         audioRef.current = audio;
         audioRef.current.loop = loop;
+
+        function onCanPlay() {
+            setCanPlay(true);
+        }
 
         function onLoadedMetadata() {
             setDuration(audio.duration);
@@ -46,12 +52,14 @@ export function AudioPlayer({ src, loop = false }) {
             setIsPlaying(false);
         }
 
+        audioRef.current.addEventListener("canplay", onCanPlay);
         audioRef.current.addEventListener("loadedmetadata", onLoadedMetadata);
         audioRef.current.addEventListener("timeupdate", onTimeUpdate);
         audioRef.current.addEventListener("play", onPlay);
         audioRef.current.addEventListener("pause", onPause);
 
         return () => {
+            audioRef.current.removeEventListener("canplay", onCanPlay);
             audioRef.current.removeEventListener("loadedmetadata", onLoadedMetadata);
             audioRef.current.removeEventListener("timeupdate", onTimeUpdate);
             audioRef.current.removeEventListener("play", onPlay);
@@ -104,11 +112,11 @@ export function AudioPlayer({ src, loop = false }) {
         <Card>
             <CardPanel>
                 <div className="flex gap-2 items-center">
-                    <Button className="aspect-square" variant="secondary" onClick={onToggle}>
+                    <Button className="aspect-square" variant="secondary" onClick={onToggle} disabled={!canPlay}>
                         {isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
                     </Button>
                     <span className="text-sm tabular-nums">{formatDuration(currentTime)}</span>
-                    <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} />
+                    <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} disabled={!canPlay} />
                     <span className="text-sm tabular-nums">{formatDuration(duration)}</span>
                 </div>
             </CardPanel>
