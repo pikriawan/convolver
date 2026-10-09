@@ -123,14 +123,14 @@ export function AudioPlayer({ src, loop = false, downloadable = false }) {
         <Card>
             <CardPanel>
                 <div className="flex gap-2 items-center">
-                    <Button className="aspect-square" variant="secondary" onClick={onToggle} disabled={!canPlay}>
+                    <Button className="aspect-square" variant="ghost" onClick={onToggle} disabled={!canPlay}>
                         {isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
                     </Button>
                     <span className="text-sm tabular-nums">{formatDuration(currentTime)}</span>
                     <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} disabled={!canPlay} />
                     <span className="text-sm tabular-nums">{formatDuration(duration)}</span>
                     {downloadable && (
-                        <Button className="aspect-square" variant="secondary" onClick={download} disabled={!canPlay}>
+                        <Button className="aspect-square" variant="ghost" onClick={download} disabled={!canPlay}>
                             <Download />
                         </Button>
                     )}

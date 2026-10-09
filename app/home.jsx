@@ -9,10 +9,12 @@ import { Slider, SliderValue } from "@/components/ui/slider";
 import { Spinner } from "@/components/ui/spinner";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { RotateCcw } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 
 export default function Home() {
     const ffmpegRef = useRef(new FFmpeg());
+    const impulseResponseRef = useRef(null);
     const sourceId = useId();
     const impulseResponseId = useId();
     const [loaded, setLoaded] = useState(false);
@@ -20,6 +22,7 @@ export default function Home() {
     const [speed, setSpeed] = useState(0.9);
     const [sourceURL, setSourceURL] = useState(null);
     const [outputURL, setOutputURL] = useState(null);
+    const [impulseResponseFilled, setImpulseResponseFilled] = useState(false);
 
     useEffect(() => {
         function onLog({ message }) {
@@ -99,6 +102,21 @@ export default function Home() {
         setOutputURL(URL.createObjectURL(new Blob([outputData.buffer], { type: "audio/mpeg" })));
     }
 
+    function onImpulseResponseChange(event) {
+        if (event.target.files) {
+            setImpulseResponseFilled(true);
+        }
+    }
+
+    function resetImpulseResponse() {
+        if (!impulseResponseRef.current) {
+            return;
+        }
+
+        impulseResponseRef.current.value = "";
+        setImpulseResponseFilled(false);
+    }
+
     return (
         <div className="p-4 flex flex-col gap-4 items-center">
             {loaded ? (
@@ -111,7 +129,12 @@ export default function Home() {
                         </Field>
                         <Field>
                             <FieldLabel htmlFor={impulseResponseId}>Impulse response (.wav, optional)</FieldLabel>
-                            <Input type="file" id={impulseResponseId} name="impulseResponse" accept=".wav,audio/wav" />
+                            <div className="w-full flex gap-2">
+                                <Input type="file" id={impulseResponseId} name="impulseResponse" accept=".wav,audio/wav" onChange={onImpulseResponseChange} ref={impulseResponseRef} />
+                                <Button variant="ghost" onClick={resetImpulseResponse} disabled={!impulseResponseFilled}>
+                                    <RotateCcw />
+                                </Button>
+                            </div>
                         </Field>
                         <Field>
                             <input type="hidden" name="speed" value={speed} />
