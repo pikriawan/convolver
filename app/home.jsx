@@ -10,6 +10,7 @@ import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { ProgressButton } from "@/components/ui/progress-button";
 import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import { Slider, SliderValue } from "@/components/ui/slider";
 import { Spinner } from "@/components/ui/spinner";
@@ -203,17 +204,14 @@ export default function Home() {
                                 </div>
                             </Slider>
                         </Field>
-                        {progress !== null && (
-                            <Progress aria-label="Loading progress" value={progress} />
+                        {isLoading ? (
+                            <ProgressButton progress={progress}>
+                                <Spinner />
+                                Memproses...
+                            </ProgressButton>
+                        ) : (
+                            <Button type="submit">Reverb</Button>
                         )}
-                        <Button type="submit" disabled={isLoading}>
-                            {isLoading ? (
-                                <>
-                                    <Spinner />
-                                    Memproses...
-                                </>
-                            ) : "Reverb"}
-                        </Button>
                     </Form>
                     <div className="w-full max-w-sm flex flex-col gap-4">
                         {sourceURL && (
