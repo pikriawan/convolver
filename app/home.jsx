@@ -9,7 +9,6 @@ import { Field, FieldItem, FieldLabel } from "@/components/ui/field";
 import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { ProgressButton } from "@/components/ui/progress-button";
 import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import { Slider, SliderValue } from "@/components/ui/slider";
@@ -33,14 +32,15 @@ export default function Home() {
         }
 
         function onProgress({ progress: p }) {
-            if (p > 2) {
+            console.log(p);
+            if (p > 10) {
                 setProgress(0);
-            } else if (p > 1 && p <= 2) {
+            } else if (p > 1 && p <= 10) {
                 setProgress(100);
             } else if (p === 1) {
                 setProgress(null);
             } else {
-                setProgress(p * 100);
+                setProgress(Math.round(p * 100));
             }
         }
 
@@ -207,7 +207,7 @@ export default function Home() {
                         {isLoading ? (
                             <ProgressButton progress={progress}>
                                 <Spinner />
-                                Memproses...
+                                Memproses ({progress}%)...
                             </ProgressButton>
                         ) : (
                             <Button type="submit">Reverb</Button>
