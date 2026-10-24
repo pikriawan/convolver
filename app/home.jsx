@@ -33,9 +33,11 @@ export default function Home() {
 
         function onProgress({ progress: p }) {
             if (p > 2) {
-                setProgress(null);
-            } else if (p === 1) {
+                setProgress(0);
+            } else if (p > 1 && p <= 2) {
                 setProgress(100);
+            } else if (p === 1) {
+                setProgress(null);
             } else {
                 setProgress(p * 100);
             }
