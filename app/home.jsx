@@ -145,7 +145,7 @@ export default function Home() {
         <div className="p-4 flex flex-col gap-4 items-center">
             {loaded ? (
                 <>
-                    <h1 className="w-full max-w-sm text-lg font-semibold text-center">Audio Reverb</h1>
+                    <h1 className="w-full max-w-sm text-lg font-semibold text-center">Convolver</h1>
                     <Form className="w-full max-w-sm flex flex-col gap-4" onSubmit={onSubmit}>
                         <Field>
                             <FieldLabel htmlFor={sourceId}>Input (.mp3)</FieldLabel>
