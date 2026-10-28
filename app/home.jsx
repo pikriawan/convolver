@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { AudioPlayer } from "@/components/ui/audio-player";
 import { Button } from "@/components/ui/button";
 import { Field, FieldItem, FieldLabel } from "@/components/ui/field";
-import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset";
+import { Fieldset } from "@/components/ui/fieldset";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ProgressButton } from "@/components/ui/progress-button";
@@ -25,33 +25,19 @@ export default function Home() {
     const [outputURL, setOutputURL] = useState(null);
     const [customImpulseResponseSelected, setCustomImpulseResponseSelected] = useState(false);
     const [progress, setProgress] = useState(null);
+    const [progressMessage, setProgressMessage] = useState(null);
 
     useEffect(() => {
         function onLog({ message }) {
             console.log(message);
         }
 
-        function onProgress({ progress: p }) {
-            console.log(p);
-            if (p > 10) {
-                setProgress(0);
-            } else if (p > 1 && p <= 10) {
-                setProgress(100);
-            } else if (p === 1) {
-                setProgress(null);
-            } else {
-                setProgress(Math.round(p * 100));
-            }
-        }
-
         async function load() {
             setIsLoading(true);
-            const ffmpeg = ffmpegRef.current;
 
-            ffmpeg.on("log", onLog);
-            ffmpeg.on("progress", onProgress);
+            ffmpegRef.current.on("log", onLog);
 
-            await ffmpeg.load({
+            await ffmpegRef.current.load({
                 coreURL: "/assets/ffmpeg-core.js",
                 wasmURL: "/assets/ffmpeg-core.wasm"
             });
@@ -64,7 +50,6 @@ export default function Home() {
 
         return () => {
             ffmpegRef.current.off("log", onLog);
-            ffmpegRef.current.off("progress", onProgress);
         };
     }, []);
 
@@ -82,9 +67,7 @@ export default function Home() {
 
         setIsLoading(true);
 
-        const ffmpeg = ffmpegRef.current;
-
-        await ffmpeg.writeFile("source.mp3", await fetchFile(source));
+        await ffmpegRef.current.writeFile("source.mp3", await fetchFile(source));
 
         let impulseResponseFile = null;
 
@@ -109,23 +92,54 @@ export default function Home() {
                 break;
         }
 
-        await ffmpeg.writeFile("impulse-response.wav", await fetchFile(impulseResponseFile));
+        await ffmpegRef.current.writeFile("impulse-response.wav", await fetchFile(impulseResponseFile));
 
-        await ffmpeg.exec([
+        function onProgress({ progress: _progress }) {
+            if (_progress > 99) {
+                setProgress(0);
+            } else if (_progress === 1) {
+                setProgress(null);
+                setProgressMessage("Menyesuaikan kecepatan...");
+            } else {
+                setProgress(Math.round(_progress * 100));
+                setProgressMessage(`Memproses (${Math.round(_progress * 100)})%...`);
+            }
+        }
+
+        ffmpegRef.current.on("progress", onProgress);
+
+        await ffmpegRef.current.exec([
             "-i",
             "source.mp3",
             "-i",
             "impulse-response.wav",
             "-filter_complex",
-            `[0:a][1:a]afir,asetrate=44100*${speed},aresample=44100,volume=10`,
+            `[0:a][1:a]afir,volume=10`,
             "-c:a",
             "libmp3lame",
             "-b:a",
             "320k",
-            "output.mp3"
+            speed === "1" ? "output.mp3" : "convolution.mp3"
         ]);
 
+        ffmpegRef.current.off("progress", onProgress);
+
+        if (speed !== "1") {
+            await ffmpegRef.current.exec([
+                "-i",
+                "convolution.mp3",
+                "-filter_complex",
+                `asetrate=44100*${speed},aresample=44100`,
+                "-c:a",
+                "libmp3lame",
+                "-b:a",
+                "320k",
+                "output.mp3"
+            ]);
+        }
+
         setIsLoading(false);
+        setProgressMessage(null);
 
         if (sourceURL) {
             URL.revokeObjectURL(sourceURL);
@@ -137,103 +151,101 @@ export default function Home() {
             URL.revokeObjectURL(outputURL);
         }
 
-        const outputData = await ffmpeg.readFile("output.mp3");
+        const outputData = await ffmpegRef.current.readFile("output.mp3");
         setOutputURL(URL.createObjectURL(new Blob([outputData.buffer], { type: "audio/mpeg" })));
     }
 
     return (
         <div className="p-4 flex flex-col gap-4 items-center">
-            {loaded ? (
-                <>
-                    <h1 className="w-full max-w-sm text-lg font-semibold text-center">Convolver</h1>
-                    <Form className="w-full max-w-sm flex flex-col gap-4" onSubmit={onSubmit}>
-                        <Field>
-                            <FieldLabel htmlFor={sourceId}>Input (.mp3)</FieldLabel>
-                            <Input type="file" id={sourceId} name="source" accept=".mp3,audio/mpeg" required />
-                        </Field>
-                        <Field className="gap-2" name="impulseResponse" render={(props) => <Fieldset {...props} />}>
-                            <FieldsetLegend className="font-medium text-sm">Impulse response</FieldsetLegend>
-                            <RadioGroup defaultValue="concert-hall" onChange={(event) => setCustomImpulseResponseSelected(event.target.value === "custom")}>
-                                <FieldItem>
-                                    <FieldLabel>
-                                        <Radio value="concert-hall" />
-                                        Aula konser
-                                    </FieldLabel>
-                                </FieldItem>
-                                <FieldItem>
-                                    <FieldLabel>
-                                        <Radio value="tennis-court" />
-                                        Lapangan tenis
-                                    </FieldLabel>
-                                </FieldItem>
-                                <FieldItem>
-                                    <FieldLabel>
-                                        <Radio value="tower" />
-                                        Menara
-                                    </FieldLabel>
-                                </FieldItem>
-                                <FieldItem>
-                                    <FieldLabel>
-                                        <Radio value="auditorium" />
-                                        Auditorium
-                                    </FieldLabel>
-                                </FieldItem>
-                                <FieldItem>
-                                    <FieldLabel>
-                                        <Radio value="forest" />
-                                        Hutan
-                                    </FieldLabel>
-                                </FieldItem>
-                                <FieldItem>
-                                    <FieldLabel>
-                                        <Radio value="custom" />
-                                        Kustom (.wav)
-                                    </FieldLabel>
-                                </FieldItem>
-                            </RadioGroup>
-                        </Field>
-                        <Field className={customImpulseResponseSelected ? "" : "hidden"}>
-                            <Input type="file" id={customImpulseResponseId} name="customImpulseResponse" accept=".wav,audio/wav" required={customImpulseResponseSelected} />
-                        </Field>
-                        <Field>
-                            <input type="hidden" name="speed" value={speed} />
-                            <Slider min={0.5} max={1.5} step={0.025} value={speed} onValueChange={(value) => setSpeed(value)}>
-                                <div className="mb-2 flex items-center justify-between gap-1">
-                                    <FieldLabel>Kecepatan</FieldLabel>
-                                    <SliderValue />
-                                </div>
-                            </Slider>
-                        </Field>
-                        {isLoading ? (
-                            <ProgressButton progress={progress}>
-                                <Spinner />
-                                Memproses ({progress}%)...
-                            </ProgressButton>
-                        ) : (
-                            <Button type="submit">Reverb</Button>
-                        )}
-                    </Form>
-                    <div className="w-full max-w-sm flex flex-col gap-4">
-                        {sourceURL && (
-                            <div className="flex flex-col gap-2">
-                                <span className="font-medium text-sm">Asli</span>
-                                <AudioPlayer src={sourceURL} loop downloadable />
-                            </div>
-                        )}
-                        {outputURL && (
-                            <div className="flex flex-col gap-2">
-                                <span className="font-medium text-sm">Reverb</span>
-                                <AudioPlayer src={outputURL} loop downloadable />
-                            </div>
-                        )}
+            <h1 className="w-full max-w-sm text-lg font-semibold text-center">Convolver</h1>
+            <Form className="w-full max-w-sm flex flex-col gap-4" onSubmit={onSubmit}>
+                <Field>
+                    <FieldLabel htmlFor={sourceId}>Input (.mp3)</FieldLabel>
+                    <Input type="file" id={sourceId} name="source" accept=".mp3,audio/mpeg" required />
+                </Field>
+                <Field className="gap-2" name="impulseResponse" render={(props) => <Fieldset {...props} />}>
+                    <FieldLabel>Impulse response</FieldLabel>
+                    <RadioGroup defaultValue="concert-hall" onChange={(event) => setCustomImpulseResponseSelected(event.target.value === "custom")}>
+                        <FieldItem>
+                            <FieldLabel>
+                                <Radio value="concert-hall" />
+                                Aula konser
+                            </FieldLabel>
+                        </FieldItem>
+                        <FieldItem>
+                            <FieldLabel>
+                                <Radio value="tennis-court" />
+                                Lapangan tenis
+                            </FieldLabel>
+                        </FieldItem>
+                        <FieldItem>
+                            <FieldLabel>
+                                <Radio value="tower" />
+                                Menara
+                            </FieldLabel>
+                        </FieldItem>
+                        <FieldItem>
+                            <FieldLabel>
+                                <Radio value="auditorium" />
+                                Auditorium
+                            </FieldLabel>
+                        </FieldItem>
+                        <FieldItem>
+                            <FieldLabel>
+                                <Radio value="forest" />
+                                Hutan
+                            </FieldLabel>
+                        </FieldItem>
+                        <FieldItem>
+                            <FieldLabel>
+                                <Radio value="custom" />
+                                Kustom (.wav)
+                            </FieldLabel>
+                        </FieldItem>
+                    </RadioGroup>
+                </Field>
+                <Field className={customImpulseResponseSelected ? "" : "hidden"}>
+                    <Input type="file" id={customImpulseResponseId} name="customImpulseResponse" accept=".wav,audio/wav" required={customImpulseResponseSelected} />
+                </Field>
+                <Field>
+                    <input type="hidden" name="speed" value={speed} />
+                    <Slider min={0.5} max={1.5} step={0.025} value={speed} onValueChange={(value) => setSpeed(value)}>
+                        <div className="mb-2 flex items-center justify-between gap-1">
+                            <FieldLabel>Kecepatan</FieldLabel>
+                            <SliderValue />
+                        </div>
+                    </Slider>
+                </Field>
+                {loaded ? (
+                    isLoading ? (
+                        <ProgressButton progress={progress}>
+                            <Spinner />
+                            {progressMessage}
+                        </ProgressButton>
+                    ) : (
+                        <Button type="submit">Terapkan</Button>
+                    )
+                ) : (
+                    <Button variant="outline" disabled>
+                        <Spinner />
+                        Mengunduh aset...
+                    </Button>
+                )}
+            </Form>
+            <div className="w-full max-w-sm flex flex-col gap-4">
+                {sourceURL && (
+                    <div className="flex flex-col gap-2">
+                        <span className="font-medium text-sm">Sebelum</span>
+                        <AudioPlayer src={sourceURL} loop downloadable />
                     </div>
-                </>
-            ) : (
-                <>
-                    <Spinner />
-                    <p className="text-center">Mengunduh FFmpeg</p>
-                </>
-            )}
+                )}
+                {outputURL && (
+                    <div className="flex flex-col gap-2">
+                        <span className="font-medium text-sm">Sesudah</span>
+                        <AudioPlayer src={outputURL} loop downloadable />
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
