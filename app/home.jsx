@@ -97,11 +97,15 @@ export default function Home() {
         function onProgress({ progress: _progress }) {
             if (_progress > 99) {
                 setProgress(0);
-            } else if (_progress === 1) {
-                setProgress(null);
-                setProgressMessage("Menyesuaikan kecepatan...");
             } else {
                 setProgress(Math.round(_progress * 100));
+            }
+
+            if (_progress > 99) {
+                setProgressMessage(null);
+            } else if (_progress === 1) {
+                setProgressMessage("Menyesuaikan kecepatan...");
+            } else {
                 setProgressMessage(`Memproses (${Math.round(_progress * 100)})%...`);
             }
         }
@@ -139,6 +143,7 @@ export default function Home() {
         }
 
         setIsLoading(false);
+        setProgress(null);
         setProgressMessage(null);
 
         if (sourceURL) {
