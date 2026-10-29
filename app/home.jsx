@@ -95,17 +95,8 @@ export default function Home() {
         await ffmpegRef.current.writeFile("impulse-response.wav", await fetchFile(impulseResponseFile));
 
         function onProgress({ progress: _progress }) {
-            if (_progress > 99) {
-                setProgress(0);
-            } else {
+            if (_progress >= 0 && _progress <= 1) {
                 setProgress(Math.round(_progress * 100));
-            }
-
-            if (_progress > 99) {
-                setProgressMessage(null);
-            } else if (_progress === 1) {
-                setProgressMessage("Menyesuaikan kecepatan...");
-            } else {
                 setProgressMessage(`Memproses (${Math.round(_progress * 100)})%...`);
             }
         }
@@ -129,6 +120,8 @@ export default function Home() {
         ffmpegRef.current.off("progress", onProgress);
 
         if (speed !== "1") {
+            setProgressMessage("Menyesuaikan kecepatan...");
+
             await ffmpegRef.current.exec([
                 "-i",
                 "convolution.mp3",
