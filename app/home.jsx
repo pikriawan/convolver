@@ -97,7 +97,7 @@ export default function Home() {
         function onProgress({ progress: _progress }) {
             if (_progress >= 0 && _progress <= 1) {
                 setProgress(Math.round(_progress * 100));
-                setProgressMessage(`Memproses (${Math.round(_progress * 100)})%...`);
+                setProgressMessage(`Memproses (${Math.round(_progress * 100)})%`);
             }
         }
 
@@ -120,7 +120,7 @@ export default function Home() {
         ffmpegRef.current.off("progress", onProgress);
 
         if (speed !== "1") {
-            setProgressMessage("Menyesuaikan kecepatan...");
+            setProgressMessage("Menyesuaikan kecepatan");
 
             await ffmpegRef.current.exec([
                 "-i",
@@ -226,7 +226,7 @@ export default function Home() {
                 ) : (
                     <Button variant="outline" disabled>
                         <Spinner />
-                        Mengunduh aset...
+                        Mengunduh aset
                     </Button>
                 )}
             </Form>
