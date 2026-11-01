@@ -1,5 +1,5 @@
-import HomeWrapper from "./home-wrapper";
+import ConvolverWrapper from "./convolver-wrapper";
 
 export default function HomePage() {
-    return <HomeWrapper />;
+    return <ConvolverWrapper />;
 }

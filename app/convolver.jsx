@@ -14,7 +14,7 @@ import { Radio, RadioGroup } from "@/components/ui/radio-group";
 import { Slider, SliderValue } from "@/components/ui/slider";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function Home() {
+export default function Convolver() {
     const ffmpegRef = useRef(new FFmpeg());
     const sourceId = useId();
     const customImpulseResponseId = useId();
