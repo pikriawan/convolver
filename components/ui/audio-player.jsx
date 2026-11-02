@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardPanel } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 
-export function AudioPlayer({ src, loop = false, downloadable = false }) {
+export function AudioPlayer({ src, title, loop = false, downloadable = false }) {
     const audioRef = useRef(null);
     const [canPlay, setCanPlay] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -126,18 +126,23 @@ export function AudioPlayer({ src, loop = false, downloadable = false }) {
     return (
         <Card>
             <CardPanel>
-                <div className="flex gap-2 items-center">
-                    <Button className="aspect-square" variant="ghost" onClick={onToggle} disabled={!canPlay}>
-                        {isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
-                    </Button>
-                    <span className="text-sm tabular-nums">{formatDuration(currentTime)}</span>
-                    <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} disabled={!canPlay} />
-                    <span className="text-sm tabular-nums">{formatDuration(duration)}</span>
-                    {downloadable && (
-                        <Button className="aspect-square" variant="ghost" onClick={download} disabled={!canPlay}>
-                            <Download />
-                        </Button>
+                <div className="flex flex-col gap-6">
+                    {title && (
+                        <span className="text-center font-medium tracking-tight truncate">{title}</span>
                     )}
+                    <div className="flex gap-2 items-center">
+                        <Button className="aspect-square" variant="ghost" onClick={onToggle} disabled={!canPlay}>
+                            {isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
+                        </Button>
+                        <span className="text-sm tabular-nums">{formatDuration(currentTime)}</span>
+                        <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} disabled={!canPlay} />
+                        <span className="text-sm tabular-nums">{formatDuration(duration)}</span>
+                        {downloadable && (
+                            <Button className="aspect-square" variant="ghost" onClick={download} disabled={!canPlay}>
+                                <Download />
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </CardPanel>
         </Card>

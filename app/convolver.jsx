@@ -232,16 +232,10 @@ export default function Convolver() {
             </Form>
             <div className="w-full max-w-sm flex flex-col gap-4">
                 {sourceURL && (
-                    <div className="flex flex-col gap-2">
-                        <span className="font-medium text-sm">Sebelum</span>
-                        <AudioPlayer src={sourceURL} loop downloadable />
-                    </div>
+                    <AudioPlayer src={sourceURL} title="Sebelum" loop downloadable />
                 )}
                 {outputURL && (
-                    <div className="flex flex-col gap-2">
-                        <span className="font-medium text-sm">Sesudah</span>
-                        <AudioPlayer src={outputURL} loop downloadable />
-                    </div>
+                    <AudioPlayer src={outputURL} title="Sesudah" loop downloadable />
                 )}
             </div>
         </div>
