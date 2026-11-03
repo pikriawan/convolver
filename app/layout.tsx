@@ -19,16 +19,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Convolver",
-  description: "Alat untuk menerapkan efek convolution ke audio",
+  description: "Efek convolution untuk audio mp3",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={cn("dark", "h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable, interHeading.variable)}
+      className={cn("dark", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable, interHeading.variable)}
     >
-      <body className="min-h-full flex flex-col">
+      <body>
         {children}
       </body>
     </html>

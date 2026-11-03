@@ -154,15 +154,14 @@ export default function Convolver() {
     }
 
     return (
-        <div className="p-4 flex flex-col gap-4 items-center">
-            <h1 className="w-full max-w-sm text-lg font-semibold text-center">Convolver</h1>
-            <Form className="w-full max-w-sm flex flex-col gap-4" onSubmit={onSubmit}>
+        <div className="flex flex-col gap-8 items-center">
+            <Form className="w-full flex flex-col gap-6" onSubmit={onSubmit}>
                 <Field>
-                    <FieldLabel htmlFor={sourceId}>Input (.mp3)</FieldLabel>
+                    <FieldLabel htmlFor={sourceId}>Masukkan audiomu (.mp3)</FieldLabel>
                     <Input type="file" id={sourceId} name="source" accept=".mp3,audio/mpeg" required />
                 </Field>
                 <Field className="gap-2" name="impulseResponse" render={(props) => <Fieldset {...props} />}>
-                    <FieldLabel>Impulse response</FieldLabel>
+                    <FieldLabel>Efek (impulse response)</FieldLabel>
                     <RadioGroup defaultValue="concert-hall" onChange={(event) => setCustomImpulseResponseSelected(event.target.value === "custom")}>
                         <FieldItem>
                             <FieldLabel>
@@ -230,14 +229,16 @@ export default function Convolver() {
                     </Button>
                 )}
             </Form>
-            <div className="w-full max-w-sm flex flex-col gap-4">
-                {sourceURL && (
-                    <AudioPlayer src={sourceURL} title="Sebelum" loop downloadable />
-                )}
-                {outputURL && (
-                    <AudioPlayer src={outputURL} title="Sesudah" loop downloadable />
-                )}
-            </div>
+            {sourceURL && outputURL && (
+                <div className="w-full flex flex-col gap-6">
+                    {sourceURL && (
+                        <AudioPlayer src={sourceURL} title="Sebelum" loop downloadable />
+                    )}
+                    {outputURL && (
+                        <AudioPlayer src={outputURL} title="Sesudah" loop downloadable />
+                    )}
+                </div>
+            )}
         </div>
     );
 }
