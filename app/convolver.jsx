@@ -162,7 +162,7 @@ export default function Convolver() {
                 </Field>
                 <Field className="gap-2" name="impulseResponse" render={(props) => <Fieldset {...props} />}>
                     <FieldLabel>Efek (impulse response)</FieldLabel>
-                    <RadioGroup defaultValue="concert-hall" onChange={(event) => setCustomImpulseResponseSelected(event.target.value === "custom")}>
+                    <RadioGroup className="w-full" defaultValue="concert-hall" onChange={(event) => setCustomImpulseResponseSelected(event.target.value === "custom")}>
                         <FieldItem>
                             <FieldLabel>
                                 <Radio value="concert-hall" />
@@ -194,15 +194,15 @@ export default function Convolver() {
                             </FieldLabel>
                         </FieldItem>
                         <FieldItem>
-                            <FieldLabel>
-                                <Radio value="custom" />
-                                Kustom (.wav)
-                            </FieldLabel>
+                            <Field className="w-full">
+                                <FieldLabel>
+                                    <Radio value="custom" />
+                                    Kustom (.wav)
+                                </FieldLabel>
+                                <Input className={customImpulseResponseSelected ? "" : "hidden"} type="file" id={customImpulseResponseId} name="customImpulseResponse" accept=".wav,audio/wav" required={customImpulseResponseSelected} />
+                            </Field>
                         </FieldItem>
                     </RadioGroup>
-                </Field>
-                <Field className={customImpulseResponseSelected ? "" : "hidden"}>
-                    <Input type="file" id={customImpulseResponseId} name="customImpulseResponse" accept=".wav,audio/wav" required={customImpulseResponseSelected} />
                 </Field>
                 <Field>
                     <input type="hidden" name="speed" value={speed} />
