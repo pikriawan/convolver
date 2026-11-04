@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardPanel } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { Spinner } from "@/components/ui/spinner";
 
 export function AudioPlayer({ src, title, loop = false, downloadable = false }) {
     const audioRef = useRef(null);
@@ -130,16 +131,28 @@ export function AudioPlayer({ src, title, loop = false, downloadable = false }) 
                     {title && (
                         <span className="text-center font-medium tracking-tight truncate">{title}</span>
                     )}
-                    <div className="flex gap-2 items-center">
-                        <Button className="aspect-square" variant="ghost" onClick={onToggle} disabled={!canPlay}>
-                            {isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}
-                        </Button>
-                        <span className="text-sm tabular-nums">{formatDuration(currentTime)}</span>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex justify-between">
+                            <span className="text-sm tabular-nums">{formatDuration(currentTime)}</span>
+                            <span className="text-sm tabular-nums">{formatDuration(duration)}</span>
+                        </div>
                         <Slider value={currentTime} onValueChange={onValueChange} max={duration > 0 ? duration : 100} disabled={!canPlay} />
-                        <span className="text-sm tabular-nums">{formatDuration(duration)}</span>
+                    </div>
+                    <div className="flex  justify-center gap-2">
+                        <Button className="aspect-square" variant="outline" onClick={onToggle} disabled={!canPlay}>
+                            {canPlay ? (
+                                isPlaying ? <Pause fill="currentColor" /> : <Play fill="currentColor" />
+                            ) : (
+                                <Spinner />
+                            )}
+                        </Button>
                         {downloadable && (
-                            <Button className="aspect-square" variant="ghost" onClick={download} disabled={!canPlay}>
-                                <Download />
+                            <Button className="aspect-square" variant="outline" onClick={download} disabled={!canPlay}>
+                                {canPlay ? (
+                                    <Download />
+                                ) : (
+                                    <Spinner />
+                                )}
                             </Button>
                         )}
                     </div>
