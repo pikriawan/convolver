@@ -162,7 +162,7 @@ export default function Convolver() {
                 </Field>
                 <Field className="gap-2" name="impulseResponse" render={(props) => <Fieldset {...props} />}>
                     <FieldLabel>Efek (impulse response)</FieldLabel>
-                    <RadioGroup className="w-full" defaultValue="concert-hall" onChange={(event) => setCustomImpulseResponseSelected(event.target.value === "custom")}>
+                    <RadioGroup className="w-full" defaultValue="concert-hall" onChange={(event) => setCustomImpulseResponseSelected(event.target.value === "custom" || event.target.files)}>
                         <FieldItem>
                             <FieldLabel>
                                 <Radio value="concert-hall" />
