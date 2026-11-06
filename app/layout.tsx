@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
+import Script from "next/script";
 import { cn } from "@/lib/utils";
 
 const interHeading = Inter({subsets:['latin'],variable:'--font-heading'});
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body>
         {children}
+        <Script src="/visitor-tracker.js" />
       </body>
     </html>
   );
