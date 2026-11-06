@@ -1,5 +1,1 @@
-async function main() {
-    const response = await fetch("/api/views", { method: "post" });
-}
-
-main();
+fetch("/api/views", { method: "post" });
