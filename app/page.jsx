@@ -27,16 +27,6 @@ export default function HomePage() {
                     <AlertTitle>Tip</AlertTitle>
                     <AlertDescription>Gunakan headset untuk pengalaman mendengarkan yang lebih imersif.</AlertDescription>
                 </Alert>
-                <Alert>
-                    <InfoIcon />
-                    <AlertTitle>Bagaimana convolver bekerja?</AlertTitle>
-                    <AlertDescription>
-                        <div className="flex flex-col gap-4">
-                            <p>Convolver bekerja dengan menerapkan teknik convolution pada audio menggunakan Impulse Response (IR) yang merepresentasikan karakteristik akustik suatu ruang.</p>
-                            <p>Ketika audio diproses menggunakan IR yang dipilih, sistem mensimulasikan pantulan suara dan reverberasi sehingga audio terdengar seolah-olah diputar di lingkungan tertentu, seperti aula konser, menara, atau auditorium.</p>
-                        </div>
-                    </AlertDescription>
-                </Alert>
                 <span className="w-2 h-2 bg-neutral-800 ring ring-neutral-700 rounded-xs absolute bottom-0 left-0 -translate-x-[calc(50%+0.03125rem)] translate-y-[calc(50%+0.03125rem)] z-10" />
                 <span className="w-2 h-2 bg-neutral-800 ring ring-neutral-700 rounded-xs absolute bottom-0 right-0 translate-x-[calc(50%+0.03125rem)] translate-y-[calc(50%+0.03125rem)] z-10" />
             </div>
