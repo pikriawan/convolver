@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body>
         {children}
-        <Script src="/visitor-tracker.js" />
+        <Script src={process.env.VIEW_TRACKER_SCRIPT_URL} />
       </body>
     </html>
   );
